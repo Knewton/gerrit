@@ -125,6 +125,18 @@ public abstract class SafeHtml
     return DOM.getFirstChild(e);
   }
 
+  public SafeHtml markdownify() {
+    final SafeHtmlBuilder r = new SafeHtmlBuilder();
+    r.openDiv();
+    r.append(asis(marked(asString())));
+    r.closeDiv();
+    return r.toSafeHtml();
+  }
+
+  private native String marked(String s) /*-{
+    return $wnd.marked(s);
+  }-*/;
+
   /** Convert bare http:// and https:// URLs into &lt;a href&gt; tags. */
   public SafeHtml linkify() {
     final String part = "(?:" +
@@ -139,116 +151,6 @@ public abstract class SafeHtml
           part + "*" +
         ")",
         "<a href=\"$1\" target=\"_blank\">$1</a>");
-  }
-
-  /**
-   * Apply {@link #linkify()}, and "\n\n" to &lt;p&gt;.
-   * <p>
-   * Lines that start with whitespace are assumed to be preformatted, and are
-   * formatted by the {@link SafeHtmlCss#wikiPreFormat()} CSS class.
-   */
-  public SafeHtml wikify() {
-    final SafeHtmlBuilder r = new SafeHtmlBuilder();
-    for (final String p : linkify().asString().split("\n\n")) {
-      if (isQuote(p)) {
-        wikifyQuote(r, p);
-
-      } else if (isPreFormat(p)) {
-        r.openElement("p");
-        for (final String line : p.split("\n")) {
-          r.openSpan();
-          r.setStyleName(RESOURCES.css().wikiPreFormat());
-          r.append(asis(line));
-          r.closeSpan();
-          r.br();
-        }
-        r.closeElement("p");
-
-      } else if (isList(p)) {
-        wikifyList(r, p);
-
-      } else {
-        r.openElement("p");
-        r.append(asis(p));
-        r.closeElement("p");
-      }
-    }
-    return r.toSafeHtml();
-  }
-
-  private void wikifyList(final SafeHtmlBuilder r, final String p) {
-    boolean in_ul = false;
-    boolean in_p = false;
-    for (String line : p.split("\n")) {
-      if (line.startsWith("-") || line.startsWith("*")) {
-        if (!in_ul) {
-          if (in_p) {
-            in_p = false;
-            r.closeElement("p");
-          }
-
-          in_ul = true;
-          r.openElement("ul");
-          r.setStyleName(RESOURCES.css().wikiList());
-        }
-        line = line.substring(1).trim();
-
-      } else if (!in_ul) {
-        if (!in_p) {
-          in_p = true;
-          r.openElement("p");
-        } else {
-          r.append(' ');
-        }
-        r.append(asis(line));
-        continue;
-      }
-
-      r.openElement("li");
-      r.append(asis(line));
-      r.closeElement("li");
-    }
-
-    if (in_ul) {
-      r.closeElement("ul");
-    } else if (in_p) {
-      r.closeElement("p");
-    }
-  }
-
-  private void wikifyQuote(SafeHtmlBuilder r, String p) {
-    r.openElement("blockquote");
-    r.setStyleName(RESOURCES.css().wikiQuote());
-    if (p.startsWith("&gt; ")) {
-      p = p.substring(5);
-    } else if (p.startsWith(" &gt; ")) {
-      p = p.substring(6);
-    }
-    p = p.replaceAll("\\n ?&gt; ", "\n");
-    for (String e : p.split("\n\n")) {
-      if (isQuote(e)) {
-        SafeHtmlBuilder b = new SafeHtmlBuilder();
-        wikifyQuote(b, e);
-        r.append(b);
-      } else {
-        r.append(asis(e));
-      }
-    }
-    r.closeElement("blockquote");
-  }
-
-  private static boolean isQuote(String p) {
-    return p.startsWith("&gt; ") || p.startsWith(" &gt; ");
-  }
-
-  private static boolean isPreFormat(final String p) {
-    return p.contains("\n ") || p.contains("\n\t") || p.startsWith(" ")
-        || p.startsWith("\t");
-  }
-
-  private static boolean isList(final String p) {
-    return p.contains("\n- ") || p.contains("\n* ") || p.startsWith("- ")
-        || p.startsWith("* ");
   }
 
   /**

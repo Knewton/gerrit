@@ -142,7 +142,7 @@ class DraftBox extends CommentBox {
       String msg = info.message().trim();
       summary.setInnerText(msg);
       message.setHTML(linkProcessor.apply(
-          new SafeHtmlBuilder().append(msg).wikify()));
+          new SafeHtmlBuilder().append(msg).markdownify()));
     }
     comment = info;
   }

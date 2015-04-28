@@ -26,7 +26,7 @@ class SubmitFailureDialog extends ErrorDialog {
   }
 
   SubmitFailureDialog(String msg) {
-    super(new SafeHtmlBuilder().append(msg.trim()).wikify());
+    super(new SafeHtmlBuilder().append(msg.trim()).markdownify());
     setText(Util.C.submitFailed());
   }
 }

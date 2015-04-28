@@ -56,7 +56,7 @@ class LineComment extends Composite {
 
     if (info.message() != null) {
       message.setInnerSafeHtml(clp.apply(new SafeHtmlBuilder()
-          .append(info.message().trim()).wikify()));
+          .append(info.message().trim()).markdownify()));
     }
   }
 

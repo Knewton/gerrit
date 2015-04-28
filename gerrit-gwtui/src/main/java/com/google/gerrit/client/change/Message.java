@@ -95,7 +95,7 @@ class Message extends Composite {
       String msg = info.message().trim();
       summary.setInnerText(msg);
       message.setInnerSafeHtml(history.getCommentLinkProcessor()
-        .apply(new SafeHtmlBuilder().append(msg).wikify()));
+        .apply(new SafeHtmlBuilder().append(msg).markdownify()));
     } else {
       reply.getElement().getStyle().setVisibility(Visibility.HIDDEN);
     }

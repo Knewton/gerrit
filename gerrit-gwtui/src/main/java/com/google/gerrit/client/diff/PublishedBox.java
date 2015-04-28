@@ -98,7 +98,7 @@ class PublishedBox extends CommentBox {
       String msg = info.message().trim();
       summary.setInnerText(msg);
       message.setInnerSafeHtml(clp.apply(
-          new SafeHtmlBuilder().append(msg).wikify()));
+          new SafeHtmlBuilder().append(msg).markdownify()));
     }
 
     fix.setVisible(open);

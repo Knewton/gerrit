@@ -122,7 +122,7 @@ public class CommentPanel extends Composite implements HasDoubleClickHandlers,
     }
 
     messageSummary.setText(summarize(message));
-    SafeHtml buf = new SafeHtmlBuilder().append(message).wikify();
+    SafeHtml buf = new SafeHtmlBuilder().append(message).markdownify();
     buf = commentLinkProcessor.apply(buf);
     SafeHtml.set(messageText, buf);
   }
